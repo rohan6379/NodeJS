@@ -1,1 +1,1 @@
-UI LINK = https://kunal6379.netlify.app/
+UI LINK = http://man-coupon.gl.at.ply.gg:53529

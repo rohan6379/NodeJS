@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WINDOWS CONTROL TERMINAL</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --bg-tertiary: #1a1a1a;
+            --bg-card: #161616;
+            --accent-primary: #00ff88;
+            --accent-secondary: #00d4ff;
+            --accent-danger: #ff4757;
+            --accent-warning: #ffa502;
+            --text-primary: #ffffff;
+            --text-secondary: #b3b3b3;
+            --text-muted: #666666;
+            --border-color: #333333;
+            --shadow-glow: rgba(0, 255, 136, 0.2);
+            --shadow-danger: rgba(255, 71, 87, 0.2);
+            --shadow-warning: rgba(255, 165, 2, 0.2);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
+            background-image:
+                radial-gradient(circle at 20% 80%, rgba(0, 255, 136, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(255, 71, 87, 0.05) 0%, transparent 50%);
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-card) 100%);
+            padding: 30px;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary), var(--accent-danger));
+        }
+
+        .header h1 {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2.8em;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px var(--shadow-glow);
+            letter-spacing: -1px;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 1.1em;
+            font-weight: 300;
+        }
+
+        .api-switcher {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--bg-card);
+            padding: 10px 15px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        .api-switcher label {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .api-switcher select {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            padding: 5px 10px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 50px;
+        }
+
+        .section h2 {
+            color: var(--text-primary);
+            margin-bottom: 25px;
+            font-size: 1.8em;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .section h2::before {
+            content: '';
+            width: 4px;
+            height: 25px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 2px;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .control-card {
+            background: var(--bg-card);
+            border-radius: 15px;
+            padding: 30px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .control-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .control-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border-color: var(--accent-primary);
+        }
+
+        .control-card:hover::before {
+            opacity: 1;
+        }
+
+        .control-card h3 {
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            font-size: 1.4em;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 14px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .input-group input,
+        .input-group textarea,
+        .input-group select {
+            width: 100%;
+            padding: 12px 15px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-family: 'JetBrains Mono', monospace;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus,
+        .input-group textarea:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px var(--shadow-glow);
+        }
+
+        .input-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--accent-primary), #00cc70);
+            color: var(--bg-primary);
+            border: none;
+            padding: 14px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px var(--shadow-glow);
+        }
+
+        .btn.danger {
+            background: linear-gradient(135deg, var(--accent-danger), #e63946);
+        }
+
+        .btn.danger:hover {
+            box-shadow: 0 10px 25px var(--shadow-danger);
+        }
+
+        .btn.warning {
+            background: linear-gradient(135deg, var(--accent-warning), #f77f00);
+        }
+
+        .btn.warning:hover {
+            box-shadow: 0 10px 25px var(--shadow-warning);
+        }
+
+        .btn.secondary {
+            background: linear-gradient(135deg, var(--accent-secondary), #0099cc);
+        }
+
+        .btn-mini {
+            background: linear-gradient(135deg, var(--accent-primary), #00cc70);
+            color: var(--bg-primary);
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            width: auto;
+            margin: 0;
+        }
+
+        .btn-mini:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px var(--shadow-glow);
+        }
+
+        .status-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .status-card {
+            background: var(--bg-card);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .status-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--accent-primary);
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 10px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        .online {
+            background: var(--accent-primary);
+            box-shadow: 0 0 10px var(--shadow-glow);
+        }
+
+        .offline {
+            background: var(--accent-danger);
+            box-shadow: 0 0 10px var(--shadow-danger);
+        }
+
+        .response-area {
+            background: var(--bg-card);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+            font-family: 'JetBrains Mono', monospace;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .response-area::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+        }
+
+        .response-area h3 {
+            margin-bottom: 20px;
+            color: var(--accent-primary);
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .response-log {
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .log-entry {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: var(--bg-tertiary);
+            border-radius: 5px;
+            border-left: 3px solid var(--accent-primary);
+        }
+
+        .log-entry.error {
+            border-left-color: var(--accent-danger);
+        }
+
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+            position: relative;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 2px solid var(--accent-primary);
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .connection-status {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: var(--bg-card);
+            padding: 10px 15px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 1000;
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2.2em;
+            }
+
+            .content {
+                padding: 25px;
+            }
+
+            .api-switcher {
+                position: static;
+                margin-bottom: 20px;
+                justify-content: center;
+            }
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-tertiary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-primary);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-secondary);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="connection-status">
+        <span class="status-indicator online" id="connectionIndicator"></span>
+        <span id="connectionText">CONNECTING...</span>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <div class="api-switcher">
+                <label>API ENDPOINT:</label>
+                <select id="apiSelector" onchange="switchAPI()">
+                    <option value="http://localhost:8000">LOCAL (localhost:8000)</option>
+                    <option value="custom">CUSTOM URL</option>
+                </select>
+                <input type="text" id="customUrl" placeholder="http://your-ip:port"
+                    style="display: none; margin-left: 10px; width: 200px; padding: 5px 8px; font-size: 12px;">
+                <button id="connectBtn" onclick="connectCustom()"
+                    style="display: none; margin-left: 5px; padding: 5px 10px; font-size: 12px;"
+                    class="btn-mini">CONNECT</button>
+            </div>
+            <h1>WINDOWS CONTROL TERMINAL</h1>
+            <p>REMOTE SYSTEM MANAGEMENT INTERFACE</p>
+        </div>
+
+        <div class="content">
+            <!-- System Status Section -->
+            <div class="section">
+                <h2>📊 SYSTEM STATUS</h2>
+                <div class="status-section">
+                    <div class="status-card">
+                        <h3><span class="status-indicator online" id="statusIndicator"></span>SYSTEM STATUS</h3>
+                        <button class="btn secondary" onclick="checkStatus()">CHECK STATUS</button>
+                    </div>
+                    <div class="status-card">
+                        <h3>💻 SYSTEM INFO</h3>
+                        <button class="btn secondary" onclick="getSystemInfo()">GET INFO</button>
+                    </div>
+                    <div class="status-card">
+                        <h3>❤️ HEALTH CHECK</h3>
+                        <button class="btn secondary" onclick="healthCheck()">HEALTH CHECK</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Control Section -->
+            <div class="section">
+                <h2>⚡ SYSTEM CONTROL</h2>
+                <div class="controls">
+                    <div class="control-card">
+                        <h3>🔴 SHUTDOWN SYSTEM</h3>
+                        <div class="input-group">
+                            <label>DELAY (SECONDS):</label>
+                            <input type="number" id="shutdownDelay" value="30" min="0" max="3600">
+                        </div>
+                        <div class="input-group">
+                            <label>MESSAGE (OPTIONAL):</label>
+                            <input type="text" id="shutdownMessage" placeholder="System maintenance">
+                        </div>
+                        <button class="btn danger" onclick="shutdownSystem()">SHUTDOWN NOW</button>
+                    </div>
+
+                    <div class="control-card">
+                        <h3>🔄 RESTART SYSTEM</h3>
+                        <div class="input-group">
+                            <label>DELAY (SECONDS):</label>
+                            <input type="number" id="restartDelay" value="30" min="0" max="3600">
+                        </div>
+                        <div class="input-group">
+                            <label>MESSAGE (OPTIONAL):</label>
+                            <input type="text" id="restartMessage" placeholder="System restart">
+                        </div>
+                        <button class="btn warning" onclick="restartSystem()">RESTART NOW</button>
+                    </div>
+
+                    <div class="control-card">
+                        <h3>❌ CANCEL OPERATION</h3>
+                        <p style="color: var(--text-secondary); margin-bottom: 20px;">Cancel any pending shutdown or
+                            restart operation.</p>
+                        <button class="btn" onclick="cancelOperation()">CANCEL SHUTDOWN/RESTART</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Communication Section -->
+            <div class="section">
+                <h2>📢 COMMUNICATION</h2>
+                <div class="controls">
+                    <div class="control-card">
+                        <h3>📨 BROADCAST MESSAGE</h3>
+                        <div class="input-group">
+                            <label>MESSAGE:</label>
+                            <textarea id="broadcastMessage" rows="3"
+                                placeholder="Enter message to broadcast to all users..."></textarea>
+                        </div>
+                        <button class="btn secondary" onclick="broadcastMessage()">SEND MESSAGE</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Response Area -->
+            <div class="response-area">
+                <h3>📋 RESPONSE LOG</h3>
+                <div id="responseLog" class="response-log">
+                    <div class="log-entry">
+                        <strong>[SYSTEM]</strong> Terminal initialized. Ready to execute commands...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let API_BASE = 'http://localhost:8000';
+
+        function switchAPI() {
+            const selector = document.getElementById('apiSelector');
+            const customUrlInput = document.getElementById('customUrl');
+            const connectBtn = document.getElementById('connectBtn');
+
+            if (selector.value === 'custom') {
+                // Show custom URL input
+                customUrlInput.style.display = 'inline-block';
+                connectBtn.style.display = 'inline-block';
+
+                // Load saved custom URL if exists
+                const savedCustomUrl = localStorage.getItem('customAPI');
+                if (savedCustomUrl) {
+                    customUrlInput.value = savedCustomUrl;
+                }
+
+                updateConnectionStatus('ENTER CUSTOM URL', 'offline');
+                return;
+            } else {
+                // Hide custom URL input
+                customUrlInput.style.display = 'none';
+                connectBtn.style.display = 'none';
+
+                API_BASE = selector.value;
+
+                // Update connection status
+                updateConnectionStatus('SWITCHING...', 'offline');
+
+                // Clear log and add switch message
+                const log = document.getElementById('responseLog');
+                log.innerHTML = `<div class="log-entry">
+                    <strong>[SYSTEM]</strong> Switched to API endpoint: ${API_BASE}
+                </div>`;
+
+                // Save preference
+                localStorage.setItem('preferredAPI', API_BASE);
+
+                // Check new connection
+                setTimeout(() => {
+                    checkStatus();
+                }, 1000);
+            }
+        }
+
+        function connectCustom() {
+            const customUrl = document.getElementById('customUrl').value.trim();
+
+            if (!customUrl) {
+                alert('⚠️ Please enter a custom URL');
+                return;
+            }
+
+            // Validate URL format
+            try {
+                new URL(customUrl);
+            } catch (e) {
+                alert('⚠️ Invalid URL format. Please use format: http://ip:port or https://domain:port');
+                return;
+            }
+
+            API_BASE = customUrl;
+
+            // Save custom URL
+            localStorage.setItem('customAPI', customUrl);
+            localStorage.setItem('preferredAPI', 'custom');
+
+            // Update connection status
+            updateConnectionStatus('CONNECTING TO CUSTOM...', 'offline');
+
+            // Clear log and add switch message
+            const log = document.getElementById('responseLog');
+            log.innerHTML = `<div class="log-entry">
+                <strong>[SYSTEM]</strong> Connected to custom endpoint: ${API_BASE}
+            </div>`;
+
+            // Test connection
+            setTimeout(() => {
+                checkStatus();
+            }, 1000);
+        }
+
+        // Allow Enter key to connect custom URL
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('customUrl').addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    connectCustom();
+                }
+            });
+        });
+
+        function updateConnectionStatus(text, status) {
+            document.getElementById('connectionText').textContent = text;
+            document.getElementById('connectionIndicator').className = `status-indicator ${status}`;
+        }
+
+        function logResponse(response, isError = false) {
+            const log = document.getElementById('responseLog');
+            const timestamp = new Date().toLocaleTimeString();
+            const entryClass = isError ? 'log-entry error' : 'log-entry';
+
+            const logEntry = document.createElement('div');
+            logEntry.className = entryClass;
+            logEntry.innerHTML = `<strong>[${timestamp}]</strong> ${JSON.stringify(response, null, 2)}`;
+
+            log.appendChild(logEntry);
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function setLoading(elementId, isLoading) {
+            const element = document.getElementById(elementId) || document.body;
+            if (isLoading) {
+                element.classList.add('loading');
+            } else {
+                element.classList.remove('loading');
+            }
+        }
+
+        async function makeRequest(endpoint) {
+            try {
+                setLoading('responseLog', true);
+                updateConnectionStatus('CONNECTING...', 'offline');
+
+                const response = await fetch(`${API_BASE}${endpoint}`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    logResponse(data);
+                    updateConnectionStatus('CONNECTED', 'online');
+                    return data;
+                } else {
+                    logResponse(data, true);
+                    updateConnectionStatus('ERROR', 'offline');
+                    return null;
+                }
+            } catch (error) {
+                logResponse({ error: error.message }, true);
+                updateConnectionStatus('DISCONNECTED', 'offline');
+                return null;
+            } finally {
+                setLoading('responseLog', false);
+            }
+        }
+
+        async function checkStatus() {
+            const data = await makeRequest('/status');
+            if (data && data.success) {
+                document.getElementById('statusIndicator').className = 'status-indicator online';
+            } else {
+                document.getElementById('statusIndicator').className = 'status-indicator offline';
+            }
+        }
+
+        async function getSystemInfo() {
+            await makeRequest('/info');
+        }
+
+        async function healthCheck() {
+            await makeRequest('/health');
+        }
+
+        async function shutdownSystem() {
+            const delay = document.getElementById('shutdownDelay').value;
+            const message = document.getElementById('shutdownMessage').value;
+
+            if (confirm(`⚠️ CRITICAL OPERATION\n\nAre you sure you want to shutdown the system in ${delay} seconds?\n\nThis action cannot be undone!`)) {
+                let endpoint = `/shutdown?delay=${delay}`;
+                if (message) {
+                    endpoint += `&message=${encodeURIComponent(message)}`;
+                }
+                await makeRequest(endpoint);
+            }
+        }
+
+        async function restartSystem() {
+            const delay = document.getElementById('restartDelay').value;
+            const message = document.getElementById('restartMessage').value;
+
+            if (confirm(`⚠️ SYSTEM RESTART\n\nAre you sure you want to restart the system in ${delay} seconds?`)) {
+                let endpoint = `/restart?delay=${delay}`;
+                if (message) {
+                    endpoint += `&message=${encodeURIComponent(message)}`;
+                }
+                await makeRequest(endpoint);
+            }
+        }
+
+        async function cancelOperation() {
+            await makeRequest('/cancel');
+        }
+
+        async function broadcastMessage() {
+            const message = document.getElementById('broadcastMessage').value;
+
+            if (!message.trim()) {
+                alert('⚠️ Please enter a message to broadcast');
+                return;
+            }
+
+            await makeRequest(`/broadcast?message=${encodeURIComponent(message)}`);
+        }
+
+        // Initialize on page load
+        window.addEventListener('load', () => {
+            updateConnectionStatus('INITIALIZING...', 'offline');
+            setTimeout(() => {
+                checkStatus();
+            }, 1000);
+        });
+
+        // Auto-refresh status every 30 seconds
+        setInterval(() => {
+            if (document.getElementById('connectionIndicator').classList.contains('online')) {
+                checkStatus();
+            }
+        }, 30000);
+
+        // Save API preference
+        document.getElementById('apiSelector').addEventListener('change', () => {
+            localStorage.setItem('preferredAPI', API_BASE);
+        });
+
+        // Load API preference
+        const savedAPI = localStorage.getItem('preferredAPI');
+        if (savedAPI) {
+            API_BASE = savedAPI;
+            document.getElementById('apiSelector').value = savedAPI;
+        }
+    </script>
+</body>
+
+</html>
